@@ -1,25 +1,45 @@
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
-exports.private=(data)=>{
-    MongoClient.connect(url, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("chat_app");
-        var newdata = {
-          fisrst_UserId:data.fisrst_UserId,
-          second_userId:data.second_UserId,
-          roomId:data.roomId
+const {findOne,create,update_One} = require("./configmongo")
+exports.private=async(data)=>{
+  try{
+    const db = "chat_app"
+    const newdata =  await findOne(
+        db,
+        "private",
+        {
+          Users : data.Users
         }
-        dbo.collection("private").find(newdata,(err,result)=>{
-          if (err){
-              throw err;
-          }
-          console.log(result.name)
-          db.close()
-      })
-        // dbo.collection("private").insertOne(newdata, function(err, res) {
-        //   if (err) throw err;
-        //   console.log("1 document inserted private");
-        //   db.close();
-        // });
-      });
+        )
+    const revers = [...data.Users].sort((a,b)=>{
+        return a - b
+    })
+    const newdata_revers =  await findOne(
+      db,
+      "private",
+      {
+        Users : revers
+      }
+      )
+    console.log(newdata_revers)
+   // console.log(newdata_revers,newdata,data.Users)
+    if (newdata){
+      console.log("biasa")
+      await update_One(db,"private",data)
+    }else if(newdata_revers){
+      data.Users = revers
+      await update_One(db,"private",data)
+    }else if (!newdata && !newdata_revers) {
+      
+      var create_grup = {
+              type: data.type,
+              created_time: data.created_time,
+              last_Message: data.last_Message,
+              Users :data.Users,
+              message : data.message
+            }
+      await create(db,"private",create_grup)
+    }
+  
+  }catch(e){
+
+  }
 }
