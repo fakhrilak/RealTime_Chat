@@ -10,6 +10,6 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use('/iot/v1', router);
+app.use('/', router);
 
 server.listen(port, () => console.log(`Server is running at http://localhost:${port}`));
