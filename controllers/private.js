@@ -23,7 +23,7 @@ exports.private = async (data) => {
       console.log("biasa");
       await update_One(db, "private", data);
       await updateMessage(db, "private", data);
-      
+
     } else if (newdata_revers) {
       data.Users = revers;
       await update_One(db, "private", data);
@@ -42,3 +42,10 @@ exports.private = async (data) => {
     }
   } catch (e) {}
 };
+
+
+
+type = {
+  type: "group",
+  name: ""
+}

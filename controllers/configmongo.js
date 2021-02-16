@@ -131,10 +131,6 @@ exports.updateMessage = async (databases, coll, data) => {
 
     logMessage.message.push(data.message);
 
-    console.log(logMessage);
-
-    //   await collection.insertOne(logMessage)
-
     const query = { Users: data.Users };
     const newValues = { $push: { message: {
         $each: data.message,
@@ -142,15 +138,7 @@ exports.updateMessage = async (databases, coll, data) => {
     } } };
 
     await collection.updateOne(query, newValues);
-
-    // const updateData = await db
-    //   .collection("users")
-    //   .updateOne(query, newValues);
-
-    //   var newvalues = { $set: {last_Message:data.last_Message} };
-    //   await collection.updateOne({Users:data.Users},newvalues)
-    //   let result = await collection.findOne({},data)
-    //   return result
+    
   } catch (err) {
     console.log(err);
   } finally {
