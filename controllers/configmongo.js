@@ -59,7 +59,6 @@ exports.findOne=async(databases,coll,data)=>{
   }
 
   exports.create=async(databases,coll,data)=>{
-  
     const client = await MongoClient.connect(url, { 
         useNewUrlParser: true,
         useUnifiedTopology: true,

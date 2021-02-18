@@ -2,33 +2,33 @@ const {findOne,create,update_One,updateMessage} = require("./configmongo")
 exports.private=async(data)=>{
   try{
     const db = "chat_app"
+
     const newdata =  await findOne(
-        db,
-        "private",
-        {
-          Users : data.Users
-        }
-        )
+        db,"private",{
+        Users : data.Users})
+
     const revers = [...data.Users].sort((a,b)=>{
         return a - b
     })
+
     const newdata_revers =  await findOne(
-      db,
-      "private",
-      {
+      db,"private",{
         Users : revers
-      }
-      )
-    console.log(newdata_revers)
-   // console.log(newdata_revers,newdata,data.Users)
+      })
+      
     if (newdata){
-      console.log(data,"hai")
+
       await update_One(db,"private",data)
       await updateMessage(db, "private", data);
+
     }else if(newdata_revers){
+      //rivers digunakan nuntuk mendeteksi user chat pertama kali, kemungkinan bisa dari user a atau b,
+      //jika yg tertulis di databases a chat b duluan maka data [a,b], agar tidak membuat roomchat baru
+      //kita membutuhkan rivers ini
       data.Users = revers
       await update_One(db,"private",data)
-      await updateMessage(db, "private", data);
+      await updateMessage(db, "private", data)
+
     }else if (!newdata && !newdata_revers) {
       
       var create_grup = {
@@ -40,8 +40,7 @@ exports.private=async(data)=>{
               message : data.message
             }
       await create(db,"private",create_grup)
-    }
-  
+  }
   }catch(e){
 
   }
@@ -51,14 +50,12 @@ exports.Get_Chat=async(data)=>{
     try{
       const db = "chat_app"
       const newdata =  await findOne(
-          db,
-          data.type,
-          {
+          db,data.type,{
             Users : data.data
-          }
-          )
+          })
       return newdata.message
     }catch(e){
 
     }
+
 }
