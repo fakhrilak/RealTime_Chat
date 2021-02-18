@@ -2,43 +2,41 @@ const { findOne, create, update_One, updateMessage } = require("./configmongo");
 
 exports.private = async (data) => {
   try {
-    console.log(data, "ok");
-    const db = "chat_app";
-    const newdata = await findOne(db, "private", {
-      Users: data.Users,
+    // console.log(data, "ok");
+    const db = "test";
+    collection = "log_messages"
+    const newdata = await findOne(db, collection, {
+      users: data.users,
     });
 
-    console.log(newdata, "client");
+    // console.log(newdata, "client");
 
-    const revers = [...data.Users].sort((a, b) => {
+    const revers = [...data.users].sort((a, b) => {
       return a - b;
     });
-    const newdata_revers = await findOne(db, "private", {
-      Users: revers,
+    const newdata_revers = await findOne(db, collection, {
+      users: revers,
     });
 
-    console.log(newdata_revers, "jjj");
 
     if (newdata) {
-      console.log("biasa");
-      await update_One(db, "private", data);
-      await updateMessage(db, "private", data);
+      // console.log("biasa");
+      // await update_One(db, collection, data);
+      await updateMessage(db, collection, data);
 
     } else if (newdata_revers) {
-      data.Users = revers;
-      await update_One(db, "private", data);
-      await updateMessage(db, "private", data);
+      data.users = revers;
+      // await update_One(db, collection, data);
+      await updateMessage(db, collection, data);
 
     } else if (!newdata && !newdata_revers) {
-      console.log(data.message, "helllo");
       var create_grup = {
+        room_id: data.room_id,
         type: data.type,
-        created_time: data.created_time,
-        last_Message: data.last_Message,
-        Users: data.Users,
-        message: data.message,
+        users: data.users,
+        messages: data.message,
       };
-      await create(db, "private", create_grup);
+      await create(db, collection, create_grup);
     }
   } catch (e) {}
 };

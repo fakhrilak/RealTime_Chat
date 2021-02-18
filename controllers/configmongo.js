@@ -44,7 +44,7 @@ exports.findAll = async (databases, coll, data) => {
 
     let collection = db.collection(coll);
 
-    let res = await collection.find({ Users: data.Users }).toArray();
+    let res = await collection.find({ users: data.users }).toArray();
 
     return res;
   } catch (err) {
@@ -101,7 +101,7 @@ exports.update_One = async (databases, coll, data) => {
     let collection = db.collection(coll);
 
     var newvalues = { $set: { last_Message: data.last_Message } };
-    await collection.updateOne({ Users: data.Users }, newvalues);
+    await collection.updateOne({ users: data.users }, newvalues);
     let result = await collection.findOne({}, data);
     return result;
   } catch (err) {
@@ -127,12 +127,12 @@ exports.updateMessage = async (databases, coll, data) => {
     let db = client.db(databases);
 
     let collection = db.collection(coll);
-    const logMessage = await collection.findOne({ Users: data.Users });
+    const logMessage = await collection.findOne({ users: data.users });
 
-    logMessage.message.push(data.message);
+    console.log(data, 'pp')
 
-    const query = { Users: data.Users };
-    const newValues = { $push: { message: {
+    const query = { users: data.users };
+    const newValues = { $push: { messages: {
         $each: data.message,
         $position: 0
     } } };
