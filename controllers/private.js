@@ -1,4 +1,4 @@
-const {findOne,create,update_One} = require("./configmongo")
+const {findOne,create,update_One,updateMessage} = require("./configmongo")
 exports.private=async(data)=>{
   try{
     const db = "chat_app"
@@ -22,11 +22,13 @@ exports.private=async(data)=>{
     console.log(newdata_revers)
    // console.log(newdata_revers,newdata,data.Users)
     if (newdata){
-      console.log("biasa")
+      console.log(data,"hai")
       await update_One(db,"private",data)
+      await updateMessage(db, "private", data);
     }else if(newdata_revers){
       data.Users = revers
       await update_One(db,"private",data)
+      await updateMessage(db, "private", data);
     }else if (!newdata && !newdata_revers) {
       
       var create_grup = {
@@ -34,6 +36,7 @@ exports.private=async(data)=>{
               created_time: data.created_time,
               last_Message: data.last_Message,
               Users :data.Users,
+              last_time_message:data.last_time_message,
               message : data.message
             }
       await create(db,"private",create_grup)
@@ -42,4 +45,20 @@ exports.private=async(data)=>{
   }catch(e){
 
   }
+}
+
+exports.Get_Chat=async(data)=>{
+    try{
+      const db = "chat_app"
+      const newdata =  await findOne(
+          db,
+          data.type,
+          {
+            Users : data.data
+          }
+          )
+      return newdata.message
+    }catch(e){
+
+    }
 }

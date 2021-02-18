@@ -1,30 +1,28 @@
-const {findOne,create} = require("./configmongo")
+const {findOne,create,update_One,updateMessage} = require("./configmongo")
 
 
 exports.grup=async(data)=>{
   try{
     const db = "chat_app"
-    console.log(data._id)
     const newdata =  await findOne(
         db,
         "grup",
         {_id:data._id}
         )
-
     if (newdata){
-      console.log(newdata)
-      console.log("hello")
+      console.log(data.message)
+      await update_One(db,"grup",data)
+      await updateMessage(db, "grup", data);
     }else if (!newdata) {
-      var a = 1
-      a+= 1
       var create_grup = {
-              _id : a,
               type: data.type,
               created_time: data.created_time,
               last_Message: data.last_Message,
               admin : data.admin,
+              Users : data.Users,
+              message:data.message
             }
-      console.log(await create(db,"grup",create_grup))
+      await create(db,"grup",create_grup)
     }
   
   }catch(e){

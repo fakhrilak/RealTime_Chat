@@ -2,7 +2,10 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
 
 exports.findOne=async(databases,coll,data)=>{
-    const client = await MongoClient.connect(url, { useNewUrlParser: true })
+    const client = await MongoClient.connect(url, { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
           .catch(err => { console.log(err); });
   
       if (!client) {
@@ -14,8 +17,7 @@ exports.findOne=async(databases,coll,data)=>{
           const db = client.db(databases);
   
           let collection = db.collection(coll);
-            
-          let res = await collection.findOne(data);
+          let res = await collection.findOne({},data);
           return res
   
       } catch (err) {
@@ -28,7 +30,10 @@ exports.findOne=async(databases,coll,data)=>{
   }
 
   exports.findAll=async(databases,coll,data)=>{
-    const client = await MongoClient.connect(url, { useNewUrlParser: true })
+    const client = await MongoClient.connect(url, { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
           .catch(err => { console.log(err); });
   
       if (!client) {
@@ -42,7 +47,6 @@ exports.findOne=async(databases,coll,data)=>{
           let collection = db.collection(coll);
   
           let res = await collection.find({Users:data.Users}).toArray();
-  
           return res
   
       } catch (err) {
@@ -56,7 +60,10 @@ exports.findOne=async(databases,coll,data)=>{
 
   exports.create=async(databases,coll,data)=>{
   
-    const client = await MongoClient.connect(url, { useNewUrlParser: true })
+    const client = await MongoClient.connect(url, { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
           .catch(err => { console.log(err); });
   
       if (!client) {
@@ -72,7 +79,7 @@ exports.findOne=async(databases,coll,data)=>{
           await collection.insertOne(data);
   
           let res = await collection.find(data).toArray();
-            console.log(res)
+    
           return res
   
       } catch (err) {
@@ -85,7 +92,10 @@ exports.findOne=async(databases,coll,data)=>{
   }
 
   exports.update_One=async(databases,coll,data)=>{
-  const client = await MongoClient.connect(url, { useNewUrlParser: true })
+  const client = await MongoClient.connect(url, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    })
         .catch(err => { console.log(err); });
 
     if (!client) {
@@ -98,7 +108,8 @@ exports.findOne=async(databases,coll,data)=>{
 
         let collection = db.collection(coll);
 
-        var newvalues = { $set: {last_Message:data.last_Message} };
+        var newvalues = { $set: {last_Message:data.last_Message,
+            last_time_message:data.last_time_message} };
         await collection.updateOne({Users:data.Users},newvalues)
         let result = await collection.findOne({},data)
         return result
@@ -111,3 +122,37 @@ exports.findOne=async(databases,coll,data)=>{
         client.close();
     }
 }
+
+exports.updateMessage = async (databases, coll, data) => {
+  const client = await MongoClient.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }).catch((err) => {
+    console.log(err);
+  });
+
+  if (!client) {
+    return;
+  }
+
+  try {
+    let db = client.db(databases);
+
+    let collection = db.collection(coll);
+    const logMessage = await collection.findOne({ Users: data.Users });
+    logMessage.message.push(data.message);
+
+    const query = { Users: data.Users };
+    const newValues = { $push: { message: {
+        $each: data.message,
+        $position: 0
+    } } };
+
+    await collection.updateOne(query, newValues);
+    
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.close();
+  }
+};
