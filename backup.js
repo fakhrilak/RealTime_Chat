@@ -11,47 +11,46 @@ const connectedClient = [];
 
 function userRoom(id, room_id, user_id) {
   const user = { id, room_id, user_id };
-  console.log(user, "kkkkkk");
-  const checkSocketId = connectedClient.filter((i) => i.id === id);
+  const checkSocketId = connectedClient.filter(
+    (i) => parseInt(i.user_id) === parseInt(user_id)
+  );
+
+  // let index;
+  // if (checkSocketId.length) {
+  //   index = connectedClient.findIndex(
+  //     (client) =>
+  //       parseInt(client.user_id) === parseInt(checkSocketId[0].user_id)
+  //   );
+  // }
+  // console.log(checkSocketId, "test", index);
 
   if (!checkSocketId.length) {
     connectedClient.push(user);
-  }
+  } 
+  // else if (room_id.length && checkSocketId.length) {
+  //   connectedClient[0].room_id = room_id;
+  // }
 }
 
 function searchRoomToEmitMessage(room_id) {
+  console.log(room_id, connectedClient);
   const userToEmit = connectedClient
     .filter((item) => item.room_id === room_id)
     .map((id) => id.id);
-
+  console.log(userToEmit, "hai");
   return userToEmit;
 }
 
-const clientBasedOnUserId = [
-  {
-    socketid: "hehuf",
-    user_id: "78347",
-  },
-];
-function saveConnectedClient(socketid, user_id, room_id) {
-  const user = { socketid, user_id, room_id };
-  const checkIfUserIsConnect = clientBasedOnUserId.filter(
-    (user) => user.user_id === user_id
-  ).length;
-
-  if (!checkIfUserIsConnect) {
-    clientBasedOnUserId.push(user);
-  }
-}
 
 function userToEmitMessage(user_id) {
-  // console.log(user_id);
+  console.log(user_id);
   const userToEmit = connectedClient
-    .filter((item) => parseInt(item.user_id) === parseInt(user_id))
-    .map((id) => id.id);
-
+  .filter((item) => parseInt(item.room_id) === parseInt(user_id))
+  .map((id) => id.id);
+  console.log(userToEmit, "socketid");
   return userToEmit;
 }
+
 
 module.exports = function (io) {
   io.on("connection", (socket) => {
@@ -59,25 +58,27 @@ module.exports = function (io) {
       userRoom(socket.id, room_id, user_id);
     });
 
-    socket.on("chat", async (user_id) => {
-      saveConnectedClient(socket.id, user_id, "");
+    socket.on("chat", async (room_id, user_id) => {
+      // saveConnectedClient(socket.id, user_id);
+      userRoom(socket.id, room_id, user_id);
     });
+
 
     socket.on("message", async (data) => {
       if (data.type.type === "private") {
-        await private(data);
+        // await private(data);
 
         console.log(data, "testaaaaaaaaaaaa");
         const users = data.users;
 
-        const socketidList = userToEmitMessage(data.receiver);
-        console.log(socketidList, "receiver");
-        for (let socketid of socketidList) {
-          io.to(socketid).emit(
-            "current-message",
-            await getChatByRoomId(data.room_id)
-          );
-        }
+        // const socketidList = userToEmitMessage(data.receiver);
+        // console.log(socketidList, "lalalal");
+        // for (let socketid of socketidList) {
+        //   io.to(socketid).emit(
+        //     "current-message",
+        //     await getChatByRoomId(data.room_id)
+        //   );
+        // }
 
         const listSocketId = searchRoomToEmitMessage(data.room_id);
         for (let socketid of listSocketId) {
@@ -86,14 +87,11 @@ module.exports = function (io) {
             room_id: data.room_id,
           });
         }
-      } else if (data.type.type === "group") {
+      } else if (data.type === "group") {
         const listSocketId = searchRoomToEmitMessage(data.room_id);
 
         for (let socketid of listSocketId) {
-          io.to(socketid).emit("received-message", {
-            message: data.messages[0],
-            room_id: data.room_id,
-          });
+          io.to(socketid).emit("received-message", data.messages[0]);
         }
 
         await grup(data);
