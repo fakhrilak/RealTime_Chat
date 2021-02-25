@@ -1,39 +1,42 @@
-const { findOne, create, update_One, updateMessage } = require("./configmongo");
+const {findOne,create} = require("./configmongo")
 
-exports.grup = async (data) => {
-  try {
-    const db = "test";
 
-    const newdata = await findOne(db, "log_messages", {
-      room_id: data.room_id,
-    });
+exports.grup=async(data)=>{
+  try{
+    const db = "chat_app"
+    console.log(data._id)
+    const newdata =  await findOne(
+        db,
+        "grup",
+        {_id:data._id}
+        )
 
-    console.log(newdata, "new");
+    if (newdata){
+      console.log(newdata)
+      console.log("hello")
+    }else if (!newdata) {
+      var a = 1
+      a+= 1
+      var create_grup = {
+              _id : a,
+              type: data.type,
+              created_time: data.created_time,
+              last_Message: data.last_Message,
+              admin : data.admin,
+            }
+      console.log(await create(db,"grup",create_grup))
+    }
+  
+  }catch(e){
 
-    await updateMessage(db, "log_messages", data);
-    // if (newdata){
-
-    //   await update_One(db,"grup",data)
-
-    // }else if (!newdata) {
-    //   // var create_grup = {
-    //   //         type: data.type,
-    //   //         created_time: data.created_time,
-    //   //         last_Message: data.last_Message,
-    //   //         admin : data.admin,
-    //   //         Users : data.Users,
-    //   //         messages:data.messages
-    //   //       }
-    //   // await create(db,"grup",create_grup)
-    // }
-  } catch (e) {}
-
+  }
+  
   // MongoClient.connect(url, function(err, db) {
   //     if (err) throw err;
   //     var dbo = db.db("chat_app");
   //     var newdata = {
   //       type:data.type,
-  //       grup_name:data.grup_name,
+  //       grup_name:data.grup_name, 
   //       created_time :data.created_time
   //     }
   //     var mongoQuery = false
@@ -52,4 +55,5 @@ exports.grup = async (data) => {
   //     //   db.close();
   //     // });
   //   });
-};
+}
+

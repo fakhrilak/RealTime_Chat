@@ -1,13 +1,7 @@
-const { findAll, getListRoomByUserId, getLastMessage } = require("./configmongo");
+const {findAll} = require("./configmongo")
 
-exports.getChat = async (user_id) => {
-  const private = await getListRoomByUserId("test", "log_messages", user_id);
-  return private;
-
-  // const private = await findAll("test","log_messages", user_id)
-
-  // const grup = await findAll("chat_app","grup",{Users:data})
-  // return [...private,...grup]
-};
-
-
+exports.getChat=async(data)=>{
+    const result = await findAll("chat_app","private",{Users:data})
+    console.log(result)
+    return result
+}
